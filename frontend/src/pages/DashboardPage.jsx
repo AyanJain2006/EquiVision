@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getStocks, getPortfolio, rebalancePortfolio } from '../services/api';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import ChatUI from '../components/ChatUI';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -295,6 +296,8 @@ const DashboardPage = () => {
                         </div>
                     </div>
                 </div>
+                
+                <ChatUI userId={user._id} />
             </main>
         </div>
     );

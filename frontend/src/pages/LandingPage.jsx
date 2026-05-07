@@ -1,7 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getStats } from '../services/api';
 
 const LandingPage = () => {
+    const [stats, setStats] = useState({ 
+        assetsUnderAnalysis: '$2.4B+', 
+        activeInvestors: '18k+',
+        averageAllocation: { stocks: 40, bonds: 30, gold: 15, crypto: 15 },
+        diversificationScore: 94,
+        riskEfficiency: '+12.4'
+    });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await getStats();
+                const { activeInvestors, assetsUnderAnalysis, averageAllocation, diversificationScore, riskEfficiency } = response.data;
+                
+                const formatAssets = (val) => {
+                    if (val >= 1000000000) return '$' + (val / 1000000000).toFixed(1) + 'B+';
+                    if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M+';
+                    if (val >= 1000) return '$' + (val / 1000).toFixed(1) + 'k+';
+                    return '$' + val + '+';
+                };
+                
+                const formatInvestors = (val) => {
+                    if (val >= 1000) return (val / 1000).toFixed(1) + 'k+';
+                    return val;
+                };
+
+                setStats({
+                    assetsUnderAnalysis: formatAssets(assetsUnderAnalysis),
+                    activeInvestors: formatInvestors(activeInvestors),
+                    averageAllocation: averageAllocation || { stocks: 40, bonds: 30, gold: 15, crypto: 15 },
+                    diversificationScore: diversificationScore || 94,
+                    riskEfficiency: riskEfficiency ? `+${riskEfficiency}` : '+12.4'
+                });
+            } catch (error) {
+                console.error("Failed to fetch stats", error);
+            }
+        };
+        fetchStats();
+    }, []);
+
     return (
         <div className="bg-background text-on-surface font-body-md antialiased min-h-screen">
             {/* TopNavBar */}
@@ -56,18 +97,14 @@ const LandingPage = () => {
                                         Get Started
                                     </button>
                                 </Link>
-                                <button className="flex items-center gap-sm text-primary font-headline-sm hover:bg-primary/5 px-md py-md rounded-lg transition-all">
-                                    <span className="material-symbols-outlined">play_circle</span>
-                                    View Demo
-                                </button>
                             </div>
                             <div className="flex items-center gap-xl pt-md border-t border-gray-100">
                                 <div>
-                                    <div className="text-headline-md font-bold text-on-surface">$2.4B+</div>
+                                    <div className="text-headline-md font-bold text-on-surface">{stats.assetsUnderAnalysis}</div>
                                     <div className="text-body-sm text-outline">Assets Under Analysis</div>
                                 </div>
                                 <div>
-                                    <div className="text-headline-md font-bold text-on-surface">18k+</div>
+                                    <div className="text-headline-md font-bold text-on-surface">{stats.activeInvestors}</div>
                                     <div className="text-body-sm text-outline">Active Investors</div>
                                 </div>
                             </div>
@@ -85,43 +122,37 @@ const LandingPage = () => {
                                     {/* Allocation Item */}
                                     <div className="space-y-xs">
                                         <div className="flex justify-between text-body-sm">
-                                            <span className="font-medium">US Equities</span>
-                                            <span className="text-outline">Target: 40%</span>
+                                            <span className="font-medium">Stocks</span>
                                         </div>
                                         <div className="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
-                                            <div className="h-full bg-primary w-[42%]"></div>
+                                            <div className="h-full bg-primary" style={{ width: `${stats.averageAllocation.stocks}%` }}></div>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
-                                            <span>Actual: 42%</span>
-                                            <span className="text-tertiary">+2% Overweight</span>
+                                            <span>Platform Avg: {stats.averageAllocation.stocks}%</span>
                                         </div>
                                     </div>
                                     {/* Allocation Item */}
                                     <div className="space-y-xs">
                                         <div className="flex justify-between text-body-sm">
-                                            <span className="font-medium">International Bonds</span>
-                                            <span className="text-outline">Target: 30%</span>
+                                            <span className="font-medium">Bonds</span>
                                         </div>
                                         <div className="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
-                                            <div className="h-full bg-primary w-[28%]"></div>
+                                            <div className="h-full bg-primary" style={{ width: `${stats.averageAllocation.bonds}%` }}></div>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
-                                            <span>Actual: 28%</span>
-                                            <span className="text-secondary">-2% Underweight</span>
+                                            <span>Platform Avg: {stats.averageAllocation.bonds}%</span>
                                         </div>
                                     </div>
                                     {/* Allocation Item */}
                                     <div className="space-y-xs">
                                         <div className="flex justify-between text-body-sm">
-                                            <span className="font-medium">Emerging Tech</span>
-                                            <span className="text-outline">Target: 15%</span>
+                                            <span className="font-medium">Gold & Crypto</span>
                                         </div>
                                         <div className="h-3 w-full bg-surface-container-high rounded-full overflow-hidden">
-                                            <div className="h-full bg-primary w-[15%]"></div>
+                                            <div className="h-full bg-primary" style={{ width: `${stats.averageAllocation.gold + stats.averageAllocation.crypto}%` }}></div>
                                         </div>
                                         <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
-                                            <span>Actual: 15%</span>
-                                            <span className="text-outline">OPTIMAL</span>
+                                            <span>Platform Avg: {stats.averageAllocation.gold + stats.averageAllocation.crypto}%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -134,7 +165,7 @@ const LandingPage = () => {
                                     </div>
                                     <div>
                                         <div className="text-body-sm text-outline">Risk Efficiency</div>
-                                        <div className="text-headline-sm text-on-surface">+12.4%</div>
+                                        <div className="text-headline-sm text-on-surface">{stats.riskEfficiency}%</div>
                                     </div>
                                 </div>
                             </div>
@@ -145,7 +176,7 @@ const LandingPage = () => {
                                     </div>
                                     <div>
                                         <div className="text-body-sm text-outline">Diversification Score</div>
-                                        <div className="text-headline-sm text-on-surface">94/100</div>
+                                        <div className="text-headline-sm text-on-surface">{stats.diversificationScore}/100</div>
                                     </div>
                                 </div>
                             </div>

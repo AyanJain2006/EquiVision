@@ -13,5 +13,7 @@ export const getRiskProfile = (name, answers) => api.post('/risk-profile', { nam
 export const getPortfolio = (userId) => api.get(`/portfolio/${userId}`);
 export const getStocks = () => api.get('/stocks');
 export const rebalancePortfolio = (userId) => api.post('/rebalance', { userId });
+export const sendChatMessage = (userId, message) => api.post('/chat', { userId, message });
+export const getStats = () => api.get('/stats');
 
 export default api;
