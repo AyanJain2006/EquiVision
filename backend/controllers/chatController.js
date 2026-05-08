@@ -53,12 +53,16 @@ Your response MUST be in strictly valid JSON format exactly matching the followi
 Return ONLY valid JSON. Do not include markdown code blocks like \`\`\`json.
 `;
 
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
         const result = await model.generateContent(prompt);
         let textResponse = result.response.text();
         
         // Clean markdown backticks if AI still includes them
-        textResponse = textResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
+        if (textResponse.startsWith('```json')) {
+            textResponse = textResponse.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (textResponse.startsWith('```')) {
+            textResponse = textResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
 
         const parsedResponse = JSON.parse(textResponse.trim());
 
